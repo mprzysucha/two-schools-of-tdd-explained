@@ -1,1 +1,1 @@
-# two-schools-of-testing
+# Two schools of TDD explained
