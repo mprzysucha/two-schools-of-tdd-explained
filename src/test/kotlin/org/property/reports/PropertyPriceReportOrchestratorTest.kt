@@ -66,11 +66,3 @@ class PropertyPriceReportOrchestratorTest {
         emailSenderMock.verifyMethodCallInOrder(order = 3)
     }
 }
-
-object Main {
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val testSuite = PropertyPriceReportOrchestratorTest()
-        testSuite.testReports()
-    }
-}

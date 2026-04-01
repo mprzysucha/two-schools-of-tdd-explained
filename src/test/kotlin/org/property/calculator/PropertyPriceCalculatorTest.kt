@@ -105,16 +105,3 @@ class PropertyPriceCalculatorTest {
     }
 
 }
-
-object Main {
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val testSuite = PropertyPriceCalculatorTest()
-        testSuite.testWithStub()
-        testSuite.testWithMock()
-        testSuite.testWithDummy()
-        testSuite.testWithSpy()
-        testSuite.testWithFake()
-    }
-}
-

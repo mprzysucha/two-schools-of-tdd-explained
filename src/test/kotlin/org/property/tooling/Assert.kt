@@ -3,7 +3,7 @@ package org.property.tooling
 object Assert {
 
     fun assert(value: Boolean) {
-        assert(value) { "Assertion failed" }
+        assert(value, { "Assertion failed" })
     }
 
     fun assert(value: Boolean, lazyMessage: () -> Any) {
