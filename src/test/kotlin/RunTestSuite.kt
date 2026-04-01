@@ -1,6 +1,6 @@
 import org.property.calculator.PropertyPriceCalculatorTest
 import org.property.reports.PropertyPriceReportOrchestratorTest
-import kotlin.reflect.KFunction
+import kotlin.reflect.KFunction0
 
 object RunTestSuite {
     @JvmStatic
@@ -20,9 +20,9 @@ object RunTestSuite {
         ))
     }
 
-    private fun runTests(tests: List<KFunction<Unit>>, successMessage: () -> Any = { "SUCCESS" }) {
+    private fun runTests(tests: List<KFunction0<Unit>>, successMessage: () -> Any = { "SUCCESS" }) {
         for (test in tests) {
-            test.call().also {
+            test().also {
                 println("${test.name} ${successMessage()}")
             }
         }
