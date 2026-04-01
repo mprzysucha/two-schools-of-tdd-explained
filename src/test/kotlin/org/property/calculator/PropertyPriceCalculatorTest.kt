@@ -11,6 +11,7 @@ import org.property.tooling.Try
 class PropertyPriceCalculatorTest {
 
     fun testWithStub() {
+        //given
         val marketPricesProviderStub = object : MarketPricesProvider {
             override fun providePrice(city: City): Int = when(city) {
                 WRO -> 13200
@@ -19,8 +20,10 @@ class PropertyPriceCalculatorTest {
         }
         val propertyPriceCalculator = RealPropertyPriceCalculator(marketPricesProviderStub)
 
+        //when
         val actualValue = propertyPriceCalculator.price(area = 60, rooms = 2, city = WRO)
 
+        //then
         assert(actualValue == 792000)
     }
 
@@ -45,19 +48,23 @@ class PropertyPriceCalculatorTest {
     }
 
     fun testWithDummy() {
+        //given
         val marketPricesProviderDummy = object : MarketPricesProvider {
             override fun providePrice(city: City): Int = TODO("Not implemented")
         }
         val propertyPriceCalculator = RealPropertyPriceCalculator(marketPricesProviderDummy)
 
+        //when
         val result = Try { propertyPriceCalculator.price(area = -100, rooms = 2, city = WRO) }
 
+        //then
         assert(result is Failure)
         assert((result as Failure).e is NonPositiveNumber)
         assert(result.e.message == "Flat area")
     }
 
     fun testWithSpy() {
+        //given
         val marketPricesProviderSpy = object : MarketPricesProvider, OneArgSpy<City>() {
             private val realObject = RealMarketPricesProvider()
             override fun providePrice(city: City): Int {
@@ -67,8 +74,10 @@ class PropertyPriceCalculatorTest {
         }
         val propertyPriceCalculator = RealPropertyPriceCalculator(marketPricesProviderSpy)
 
+        //when
         propertyPriceCalculator.price(area = 50, rooms = 2, city = WRO)
 
+        //then
         assert(marketPricesProviderSpy.methodWasCalled(numOfTimes = 1))
         assert(marketPricesProviderSpy.capturedArgument() == WRO)
     }
@@ -83,11 +92,14 @@ class PropertyPriceCalculatorTest {
     }
 
     fun testWithFake() {
+        //given
         val marketPricesProviderFake = FakeMarketPricesProvider()
         val propertyPriceCalculator = RealPropertyPriceCalculator(marketPricesProviderFake)
 
+        //when
         val price = propertyPriceCalculator.price(area = 60, rooms = 2, city = WRO)
 
+        //then
         assert(price == 792000)
     }
 

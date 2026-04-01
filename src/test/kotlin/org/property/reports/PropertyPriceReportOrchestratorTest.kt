@@ -4,6 +4,7 @@ import org.property.calculator.City
 import org.property.calculator.City.Companion.WRO
 import org.property.calculator.EmailSender
 import org.property.calculator.PropertyPriceCalculator
+import org.property.email.EmailData
 
 class PropertyPriceReportOrchestratorTest {
 
@@ -50,12 +51,16 @@ class PropertyPriceReportOrchestratorTest {
     }
 
     fun testReports() {
+        //given
         val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorMock, propertyPriceReportTemplatesMock, emailSenderMock)
         val template = ReportTemplate()
         val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
+        val emailData = EmailData(to = "customer@company.com", subject = "Property price report")
 
-        systemUnderTest.generatePricesReport(template, reportInputData, "customer@company.com", "Property price report")
+        //when
+        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailData)
 
+        //then
         propertyPriceCalculatorMock.verifyMethodCallInOrder(order = 1)
         propertyPriceReportTemplatesMock.verifyMethodCallInOrder(order = 2)
         emailSenderMock.verifyMethodCallInOrder(order = 3)
