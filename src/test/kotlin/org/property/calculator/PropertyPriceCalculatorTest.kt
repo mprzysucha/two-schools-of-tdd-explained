@@ -27,6 +27,7 @@ class PropertyPriceCalculatorTest {
         assert(actualValue == 792000)
     }
 
+    //Deprecated: see better example in PropertyPriceReportOrchestratorTest.testReports()
     fun testWithMock() {
         val marketPricesProviderMock = object : MarketPricesProvider {
             private var providePriceCounter = 0
