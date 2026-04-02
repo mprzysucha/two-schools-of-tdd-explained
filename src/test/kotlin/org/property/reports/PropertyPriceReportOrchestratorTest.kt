@@ -4,24 +4,45 @@ import org.property.calculator.City
 import org.property.calculator.City.Companion.WRO
 import org.property.calculator.EmailSender
 import org.property.calculator.PropertyPriceCalculator
-import org.property.email.EmailData
+import org.property.email.Email
+import org.property.email.EmailMetadata
+import org.property.tooling.Assert.assertThat
 
 class PropertyPriceReportOrchestratorTest {
 
-    fun testReports() {
+    fun testWithMock() {
         //given
         val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorMock, propertyPriceReportTemplatesMock, emailSenderMock)
         val template = ReportTemplate()
         val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
-        val emailData = EmailData(to = "customer@company.com", subject = "Property price report")
+        val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
 
         //when
-        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailData)
+        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailMetadata)
 
         //then
         propertyPriceCalculatorMock.verifyMethodCallInOrder(order = 1)
         propertyPriceReportTemplatesMock.verifyMethodCallInOrder(order = 2)
         emailSenderMock.verifyMethodCallInOrder(order = 3)
+    }
+
+    fun testWithFake() {
+        //given
+        val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorDummy, propertyPriceReportTemplatesStub, emailSenderFake)
+        val template = ReportTemplate()
+        val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
+        val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
+
+        //when
+        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailMetadata)
+
+        //then
+        assertThat(emailSenderFake.numOfEmailsSent == 1)
+        assertThat(emailSenderFake.lastEmail != null)
+        assertThat(emailSenderFake.lastEmail == Email(
+            metadata = EmailMetadata("customer@company.com", "Property price report"),
+            content = "This is report")
+        )
     }
 
     private val orderRegister = OrderRegister()
@@ -42,6 +63,30 @@ class PropertyPriceReportOrchestratorTest {
     private val emailSenderMock = object : EmailSender, OrderedMocks("email", orderRegister) {
         override fun sendEmail(to: String, subject: String, body: String) {
             registerCall()
+        }
+    }
+
+    private val propertyPriceCalculatorDummy = object : PropertyPriceCalculator {
+        override fun price(area: Int, rooms: Int, city: City): Int {
+            return 11800
+        }
+    }
+
+    private val propertyPriceReportTemplatesStub = object : PropertyPriceReportTemplates {
+        override fun generatePricesReport(template: ReportTemplate, reportInputData: ReportInputData): Report {
+            return Report("This is report")
+        }
+    }
+
+    private val emailSenderFake = object : EmailSender {
+        var numOfEmailsSent = 0
+        var lastEmail: Email? = null
+        override fun sendEmail(to: String, subject: String, body: String) {
+            numOfEmailsSent += 1
+            lastEmail = Email(
+                metadata = EmailMetadata(to, subject),
+                content = body
+            )
         }
     }
 

@@ -1,9 +1,7 @@
 package org.property.calculator
 
-import org.property.calculator.City.Companion.KAT
-import org.property.calculator.City.Companion.SZC
 import org.property.calculator.City.Companion.WRO
-import org.property.tooling.Assert.assert
+import org.property.tooling.Assert.assertThat
 import org.property.tooling.Failure
 import org.property.tooling.OneArgSpy
 import org.property.tooling.Try
@@ -24,7 +22,7 @@ class PropertyPriceCalculatorTest {
         val actualValue = propertyPriceCalculator.price(area = 60, rooms = 2, city = WRO)
 
         //then
-        assert(actualValue == 792000)
+        assertThat(actualValue == 792000)
     }
 
     fun testWithDummy() {
@@ -38,9 +36,9 @@ class PropertyPriceCalculatorTest {
         val result = Try { propertyPriceCalculator.price(area = -100, rooms = 2, city = WRO) }
 
         //then
-        assert(result is Failure)
-        assert((result as Failure).e is NonPositiveNumber)
-        assert(result.e.message == "Flat area")
+        assertThat(result is Failure)
+        assertThat((result as Failure).e is NonPositiveNumber)
+        assertThat(result.e.message == "Flat area")
     }
 
     fun testWithSpy() {
@@ -58,29 +56,8 @@ class PropertyPriceCalculatorTest {
         propertyPriceCalculator.price(area = 50, rooms = 2, city = WRO)
 
         //then
-        assert(marketPricesProviderSpy.methodWasCalled(numOfTimes = 1))
-        assert(marketPricesProviderSpy.capturedArgument() == WRO)
-    }
-
-    private class FakeMarketPricesProvider : MarketPricesProvider {
-        override fun providePrice(city: City): Int = when(city) {
-            WRO -> 13200
-            SZC -> 9900
-            KAT -> 9400
-            else -> 11800
-        }
-    }
-
-    fun testWithFake() {
-        //given
-        val marketPricesProviderFake = FakeMarketPricesProvider()
-        val propertyPriceCalculator = RealPropertyPriceCalculator(marketPricesProviderFake)
-
-        //when
-        val price = propertyPriceCalculator.price(area = 60, rooms = 2, city = WRO)
-
-        //then
-        assert(price == 792000)
+        assertThat(marketPricesProviderSpy.methodWasCalled(numOfTimes = 1))
+        assertThat(marketPricesProviderSpy.capturedArgument() == WRO)
     }
 
 }
