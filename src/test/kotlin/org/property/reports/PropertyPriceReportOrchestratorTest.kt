@@ -8,25 +8,20 @@ import org.property.email.EmailData
 
 class PropertyPriceReportOrchestratorTest {
 
-    class OrderRegister() {
-        val registeredCalls = mutableListOf<String>()
-        fun methodCalled(order: Int, id: String): Boolean {
-            return order > 0 && order <= registeredCalls.size && registeredCalls[order - 1] == id
-        }
-        fun registerCall(id: String) {
-            registeredCalls.add(id)
-        }
-    }
+    fun testReports() {
+        //given
+        val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorMock, propertyPriceReportTemplatesMock, emailSenderMock)
+        val template = ReportTemplate()
+        val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
+        val emailData = EmailData(to = "customer@company.com", subject = "Property price report")
 
-    open class OrderedMocks(val id: String, val orderRegister: OrderRegister) {
-        open fun verifyMethodCallInOrder(order: Int) {
-            if (!orderRegister.methodCalled(order, id)) {
-                throw AssertionError("verifyMethodCallInOrder for id \"$id\" FAILED, Actual order: ${orderRegister.registeredCalls.indexOf(id) + 1}, Expected order: $order")
-            }
-        }
-        protected fun registerCall() {
-            orderRegister.registerCall(id)
-        }
+        //when
+        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailData)
+
+        //then
+        propertyPriceCalculatorMock.verifyMethodCallInOrder(order = 1)
+        propertyPriceReportTemplatesMock.verifyMethodCallInOrder(order = 2)
+        emailSenderMock.verifyMethodCallInOrder(order = 3)
     }
 
     private val orderRegister = OrderRegister()
@@ -50,19 +45,25 @@ class PropertyPriceReportOrchestratorTest {
         }
     }
 
-    fun testReports() {
-        //given
-        val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorMock, propertyPriceReportTemplatesMock, emailSenderMock)
-        val template = ReportTemplate()
-        val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
-        val emailData = EmailData(to = "customer@company.com", subject = "Property price report")
+}
 
-        //when
-        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailData)
+class OrderRegister() {
+    val registeredCalls = mutableListOf<String>()
+    fun methodCalled(order: Int, id: String): Boolean {
+        return order > 0 && order <= registeredCalls.size && registeredCalls[order - 1] == id
+    }
+    fun registerCall(id: String) {
+        registeredCalls.add(id)
+    }
+}
 
-        //then
-        propertyPriceCalculatorMock.verifyMethodCallInOrder(order = 1)
-        propertyPriceReportTemplatesMock.verifyMethodCallInOrder(order = 2)
-        emailSenderMock.verifyMethodCallInOrder(order = 3)
+open class OrderedMocks(val id: String, val orderRegister: OrderRegister) {
+    open fun verifyMethodCallInOrder(order: Int) {
+        if (!orderRegister.methodCalled(order, id)) {
+            throw AssertionError("verifyMethodCallInOrder for id \"$id\" FAILED, Actual order: ${orderRegister.registeredCalls.indexOf(id) + 1}, Expected order: $order")
+        }
+    }
+    protected fun registerCall() {
+        orderRegister.registerCall(id)
     }
 }

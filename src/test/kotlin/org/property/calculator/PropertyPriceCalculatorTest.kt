@@ -27,27 +27,6 @@ class PropertyPriceCalculatorTest {
         assert(actualValue == 792000)
     }
 
-    //Deprecated: see better example in PropertyPriceReportOrchestratorTest.testReports()
-    fun testWithMock() {
-        val marketPricesProviderMock = object : MarketPricesProvider {
-            private var providePriceCounter = 0
-            private var argumentsTimeline = mutableListOf<City>()
-            fun providePriceWasCalled(numOfTimes: Int = 1) = providePriceCounter == numOfTimes
-            fun capturedArgument(callNum: Int = 0) = argumentsTimeline.get(callNum)
-            override fun providePrice(city: City): Int {
-                providePriceCounter += 1
-                argumentsTimeline.addFirst(city)
-                return 11800
-            }
-        }
-        val propertyPriceCalculator = RealPropertyPriceCalculator(marketPricesProviderMock)
-
-        propertyPriceCalculator.price(area = 50, rooms = 2, city = WRO)
-
-        assert(marketPricesProviderMock.providePriceWasCalled(numOfTimes = 1))
-        assert(marketPricesProviderMock.capturedArgument() == WRO)
-    }
-
     fun testWithDummy() {
         //given
         val marketPricesProviderDummy = object : MarketPricesProvider {
