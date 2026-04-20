@@ -34,13 +34,13 @@ class PropertyPriceReportOrchestratorTest {
         }
 
         //given
-        val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculator, propertyPriceReportTemplates, emailSenderStub)
+        val propertyPriceReportOrchestrator = PropertyPriceReportOrchestrator(propertyPriceCalculator, propertyPriceReportTemplates, emailSenderStub)
         val template = SimpleTextReportTemplate()
         val reportInputData = ReportInputData(area = 60, rooms = 2, city = WRO)
         val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
 
         //when
-        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailMetadata)
+        propertyPriceReportOrchestrator.generatePricesReportAndSend(template, reportInputData, emailMetadata)
 
         //then
         assertThat(emailSent != null)
@@ -51,13 +51,13 @@ class PropertyPriceReportOrchestratorTest {
 
     fun testWithMock() {
         //given
-        val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorMock, propertyPriceReportTemplatesMock, emailSenderMock)
+        val propertyPriceReportOrchestrator = PropertyPriceReportOrchestrator(propertyPriceCalculatorMock, propertyPriceReportTemplatesMock, emailSenderMock)
         val template = SimpleTextReportTemplate()
         val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
         val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
 
         //when
-        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailMetadata)
+        propertyPriceReportOrchestrator.generatePricesReportAndSend(template, reportInputData, emailMetadata)
 
         //then
         propertyPriceCalculatorMock.verifyMethodCallInOrder(order = 1)
@@ -67,13 +67,13 @@ class PropertyPriceReportOrchestratorTest {
 
     fun testWithFake() {
         //given
-        val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorDummy, propertyPriceReportTemplatesStub, emailSenderFake)
+        val propertyPriceReportOrchestrator = PropertyPriceReportOrchestrator(propertyPriceCalculatorDummy, propertyPriceReportTemplatesStub, emailSenderFake)
         val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
         val template = SimpleTextReportTemplate()
         val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
 
         //when
-        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailMetadata)
+        propertyPriceReportOrchestrator.generatePricesReportAndSend(template, reportInputData, emailMetadata)
 
         //then
         assertThat(emailSenderFake.numOfEmailsSent == 1)
