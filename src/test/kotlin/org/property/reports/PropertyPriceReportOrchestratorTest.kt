@@ -3,17 +3,56 @@ package org.property.reports
 import org.property.calculator.City
 import org.property.calculator.City.Companion.WRO
 import org.property.calculator.EmailSender
+import org.property.calculator.MarketPricesProvider
 import org.property.calculator.PropertyPriceCalculator
+import org.property.calculator.RealPropertyPriceCalculator
 import org.property.email.Email
 import org.property.email.EmailMetadata
+import org.property.tooling.Assert.assertEquals
 import org.property.tooling.Assert.assertThat
 
 class PropertyPriceReportOrchestratorTest {
 
+
+
+    fun testWithStub() {
+        //given
+        val marketPricesProviderStub = object : MarketPricesProvider {
+            override fun providePrice(city: City): Int = when(city) {
+                WRO -> 13200
+                else -> 11800
+            }
+        }
+        val propertyPriceReportTemplates = object : PropertyPriceReportTemplates { }
+        val propertyPriceCalculator = RealPropertyPriceCalculator(marketPricesProviderStub)
+        data class Email(val to: String, val subject: String, val body: String)
+        var emailSent: Email? = null
+        val emailSenderStub = object : EmailSender {
+            override fun sendEmail(to: String, subject: String, body: String) {
+                emailSent = Email(to, subject, body)
+            }
+        }
+
+        //given
+        val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculator, propertyPriceReportTemplates, emailSenderStub)
+        val template = SimpleTextReportTemplate()
+        val reportInputData = ReportInputData(area = 60, rooms = 2, city = WRO)
+        val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
+
+        //when
+        systemUnderTest.generatePricesReportAndSend(template, reportInputData, emailMetadata)
+
+        //then
+        assertThat(emailSent != null)
+        assertEquals(emailSent!!.to, "customer@company.com")
+        assertEquals(emailSent.subject, "Property price report")
+        assertEquals(emailSent.body, "The property in Wroclaw with 2 rooms having 60 m2 costs 792000.")
+    }
+
     fun testWithMock() {
         //given
         val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorMock, propertyPriceReportTemplatesMock, emailSenderMock)
-        val template = ReportTemplate()
+        val template = SimpleTextReportTemplate()
         val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
         val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
 
@@ -29,8 +68,8 @@ class PropertyPriceReportOrchestratorTest {
     fun testWithFake() {
         //given
         val systemUnderTest = PropertyPriceReportOrchestrator(propertyPriceCalculatorDummy, propertyPriceReportTemplatesStub, emailSenderFake)
-        val template = ReportTemplate()
         val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
+        val template = SimpleTextReportTemplate()
         val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
 
         //when
