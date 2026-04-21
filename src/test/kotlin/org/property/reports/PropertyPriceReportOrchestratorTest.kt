@@ -13,8 +13,6 @@ import org.property.tooling.Assert.assertThat
 
 class PropertyPriceReportOrchestratorTest {
 
-
-
     fun testWithStub() {
         //given
         val marketPricesProviderStub = object : MarketPricesProvider {
@@ -67,7 +65,12 @@ class PropertyPriceReportOrchestratorTest {
 
     fun testWithFake() {
         //given
-        val propertyPriceReportOrchestrator = PropertyPriceReportOrchestrator(propertyPriceCalculatorDummy, propertyPriceReportTemplatesStub, emailSenderFake)
+        val emailSenderFake = EmailSenderFake()
+        val propertyPriceReportOrchestrator = PropertyPriceReportOrchestrator(
+            propertyPriceCalculatorDummy,
+            stubPropertyPriceReportTemplates("This is report"),
+            emailSenderFake
+        )
         val reportInputData = ReportInputData(area = 50, rooms = 2, city = WRO)
         val template = SimpleTextReportTemplate()
         val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
@@ -111,24 +114,24 @@ class PropertyPriceReportOrchestratorTest {
         }
     }
 
-    private val propertyPriceReportTemplatesStub = object : PropertyPriceReportTemplates {
+    private fun stubPropertyPriceReportTemplates(content: String) = object : PropertyPriceReportTemplates {
         override fun generatePricesReport(template: ReportTemplate, reportInputData: ReportInputData): Report {
-            return Report("This is report")
+            return Report(content)
         }
     }
 
-    private val emailSenderFake = object : EmailSender {
-        var numOfEmailsSent = 0
-        var lastEmail: Email? = null
-        override fun sendEmail(to: String, subject: String, body: String) {
-            numOfEmailsSent += 1
-            lastEmail = Email(
-                metadata = EmailMetadata(to, subject),
-                content = body
-            )
-        }
-    }
+}
 
+class EmailSenderFake : EmailSender {
+    var numOfEmailsSent = 0
+    var lastEmail: Email? = null
+    override fun sendEmail(to: String, subject: String, body: String) {
+        numOfEmailsSent += 1
+        lastEmail = Email(
+            metadata = EmailMetadata(to, subject),
+            content = body
+        )
+    }
 }
 
 class OrderRegister() {
