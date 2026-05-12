@@ -13,7 +13,7 @@ import org.property.tooling.Assert.assertThat
 
 class PropertyPriceReportOrchestratorTest {
 
-    fun testWithStub() {
+    fun verifyTheStateOfExtendedExample() {
         //given
         val marketPricesProviderStub = object : MarketPricesProvider {
             override fun providePrice(city: City): Int = when(city) {
@@ -25,19 +25,20 @@ class PropertyPriceReportOrchestratorTest {
         val propertyPriceCalculator = RealPropertyPriceCalculator(marketPricesProviderStub)
         data class Email(val to: String, val subject: String, val body: String)
         var emailSent: Email? = null
-        val emailSenderStub = object : EmailSender {
+        val emailSender = object : EmailSender {
             override fun sendEmail(to: String, subject: String, body: String) {
                 emailSent = Email(to, subject, body)
             }
         }
 
         //given
-        val propertyPriceReportOrchestrator = PropertyPriceReportOrchestrator(propertyPriceCalculator, propertyPriceReportTemplates, emailSenderStub)
+        val propertyPriceReportOrchestrator = PropertyPriceReportOrchestrator(propertyPriceCalculator, propertyPriceReportTemplates, emailSender)
         val template = SimpleTextReportTemplate()
         val reportInputData = ReportInputData(area = 60, rooms = 2, city = WRO)
         val emailMetadata = EmailMetadata(to = "customer@company.com", subject = "Property price report")
 
         //when
+//        val emailSent = propertyPriceReportOrchestrator.generatePricesReportAndSend(template, reportInputData, emailMetadata) // as mentioned in the article this will not compile
         propertyPriceReportOrchestrator.generatePricesReportAndSend(template, reportInputData, emailMetadata)
 
         //then

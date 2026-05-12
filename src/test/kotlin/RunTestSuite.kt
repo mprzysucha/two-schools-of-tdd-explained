@@ -14,7 +14,7 @@ object RunTestSuite {
 
         val propertyPriceReportOrchestratorSuite = PropertyPriceReportOrchestratorTest()
         runTests(listOf(
-            propertyPriceReportOrchestratorSuite::testWithStub,
+            propertyPriceReportOrchestratorSuite::verifyTheStateOfExtendedExample,
             propertyPriceReportOrchestratorSuite::testWithMock,
             propertyPriceReportOrchestratorSuite::testWithFake,
         ))
